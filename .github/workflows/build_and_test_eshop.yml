@@ -51,16 +51,16 @@ jobs:
         run: |
           npm rebuild node-sass --force
           npm run build -- --colors
-#      - name: Cache node modules and build folder
-#        if: ${{ github.ref == 'refs/heads/main' }}
-#        uses: actions/cache@v3.0.11
-#        with:
-#          path: |
-#            ~/.npm
-#            ./node_modules
-#            ./build
-#          key: ${{ runner.os }}-build-${{ github.run_id }}
-#          restore-keys: ${{ runner.os }}-build-${{ github.run_id }}
+      - name: Cache node modules and build folder
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: actions/cache@v3.0.11
+        with:
+          path: |
+            ~/.npm
+            ./node_modules
+            ./build
+          key: ${{ runner.os }}-build-${{ github.run_id }}
+          restore-keys: ${{ runner.os }}-build-${{ github.run_id }}
 
   Test:
     needs: Install
@@ -86,7 +86,7 @@ jobs:
 
   Deploy:
     needs: [Build, Test]
-    if: ${{ github.ref == 'refs/heads/main' }}
+#    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -94,13 +94,13 @@ jobs:
         uses: actions/checkout@v2.5.0
         with:
           token: ${{ secrets.WORKFLOW_TOKEN }}
-#      - name: Setup python
-#        uses: actions/setup-python@v2
-#        with:
-#          python-version: 3
-#      - name: Install boto
-#        run: |
-#          pip3 install ansible boto boto3
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3
+      - name: Install boto
+        run: |
+          pip3 install ansible boto boto3
       - name: Run ansible playbook
         uses: dawidd6/action-ansible-playbook@v2.6.1
         with:
@@ -108,7 +108,41 @@ jobs:
           directory: ./
           key: ${{secrets.SSH_PRIVATE_KEY}}
           vault_password: ${{secrets.VAULT_PASSWORD}}
-          requirements: galaxy-requirements.yml
+#          requirements: galaxy-requirements.yml
+          options: |
+            -vvv
+
+#  Deploy-with-bash:
+##    needs: [Build, Test]
+##    if: ${{ github.ref == 'refs/heads/main' }}
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Code checkout
+#        uses: actions/checkout@v2.5.0
+#        with:
+#          token: ${{ secrets.WORKFLOW_TOKEN }}
+#      - name: Setup SSH 
+#        shell: bash
+#        run: |
+#         eval `ssh-agent -s`
+#         mkdir -p ~/.ssh/
+#         touch ~/.ssh/id_rsa
+#         echo -e "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
+#         chmod 700 ~/.ssh/id_rsa
+#      - name: Setup python
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: 3
+#      - name: Install boto
+#        run: |
+#          pip3 install ansible boto boto3
+#      - name: Run ansible script
+#        shell: bash 
+#        run: |
+#          service ssh status
+#          echo -e "${{secrets.VAULT_PASSWORD}}" > ./vault-password-file
+#          ansible-playbook ec2-deploy.yml -vvv --private-key ~/.ssh/id_rsa --vault-password-file ${{secrets.VAULT_PASSWORD}}
 
 #  Deploy:
 #    needs: [Build, Test]
