@@ -109,6 +109,8 @@ jobs:
           key: ${{secrets.SSH_PRIVATE_KEY}}
           vault_password: ${{secrets.VAULT_PASSWORD}}
           requirements: galaxy-requirements.yml
+          options: |
+            -vvv
 
 #  Deploy:
 #    needs: [Build, Test]
