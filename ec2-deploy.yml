@@ -30,6 +30,8 @@
         delay: 30
         timeout: 300
       loop: "{{ ec2.instances }}"
+      become: yes
+      become_user: ec2-user
 
 - name: Configure EC2
   hosts: launched
