@@ -2,4 +2,3 @@ collections:
   - name: amazon.aws
   - name: community.aws
   - name: steampunk.aws
-  - name: gametize.aws-sdk
