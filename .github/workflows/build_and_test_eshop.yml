@@ -84,6 +84,24 @@ jobs:
         run: |
           npm run test -- --colors
 
+  Deploy:
+    needs: [Build, Test]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2.5.0
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+      - name: Run ansible playbook
+        uses: dawidd6/action-ansible-playbook@v2.6.1
+        with:
+          playbook: ec2-deploy.yml
+          directory: ./
+          key: ${{secrets.SSH_PRIVATE_KEY}}
+          vault_password: ${{secrets.VAULT_PASSWORD}}
+
 #  Deploy:
 #    needs: [Build, Test]
 #    if: ${{ github.ref == 'refs/heads/main' }}
