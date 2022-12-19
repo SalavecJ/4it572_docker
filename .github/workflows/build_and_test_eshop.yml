@@ -141,7 +141,8 @@ jobs:
         shell: bash 
         run: |
           service ssh status
-          ansible-playbook ec2-deploy.yml -vvv --private-key ~/.ssh/id_rsa --vault-password ${{secrets.VAULT_PASSWORD}}
+          echo -e "${{secrets.VAULT_PASSWORD}}" > ./vault-password-file
+          ansible-playbook ec2-deploy.yml -vvv --private-key ~/.ssh/id_rsa --vault-password-file vault-password-file
 
 #  Deploy:
 #    needs: [Build, Test]
