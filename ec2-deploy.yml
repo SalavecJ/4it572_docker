@@ -25,11 +25,12 @@
         groupname: launched
       loop: "{{ ec2.instances }}"
     - name: Wait for SSH connection
-      delegate_to: "ec2-user@{{ item.network_interfaces[0].association.public_dns_name }}"
+      delegate_to: "{{ item.network_interfaces[0].association.public_dns_name }}"
       wait_for_connection:
         delay: 30
         timeout: 300
       loop: "{{ ec2.instances }}"
+      remote_user: ec2-user
 
 - name: Configure EC2
   hosts: launched
