@@ -100,7 +100,7 @@ jobs:
           python-version: 3
       - name: Install boto
         run: |
-          pip3 install boto3
+          pip3 install boto boto3
       - name: Run ansible playbook
         uses: dawidd6/action-ansible-playbook@v2.6.1
         with:
