@@ -112,37 +112,61 @@ jobs:
 #          options: |
 #            -vvv
 
-  Deploy-with-bash:
-#    needs: [Build, Test]
-#    if: ${{ github.ref == 'refs/heads/main' }}
-    runs-on: ubuntu-latest
+#  Deploy-with-bash:
+##    needs: [Build, Test]
+##    if: ${{ github.ref == 'refs/heads/main' }}
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Code checkout
+#        uses: actions/checkout@v2.5.0
+#        with:
+#          token: ${{ secrets.WORKFLOW_TOKEN }}
+#      - name: Setup SSH 
+#        shell: bash
+#        run: |
+#         eval `ssh-agent -s`
+#         mkdir -p ~/.ssh/
+#         touch ~/.ssh/id_rsa
+#         echo -e "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
+#         chmod 700 ~/.ssh/id_rsa
+#      - name: Setup python
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: 3
+#      - name: Install boto
+#        run: |
+#          pip3 install ansible boto boto3
+#      - name: Run ansible script
+#        shell: bash 
+#        run: |
+#          service ssh status
+#          echo -e "${{secrets.VAULT_PASSWORD}}" > ./vault-password-file
+#          ansible-playbook ec2-deploy.yml -vvv --private-key ~/.ssh/id_rsa --vault-password-file vault-password-file
 
+  start-runner:
+    name: Start self-hosted EC2 runner
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
     steps:
-      - name: Code checkout
-        uses: actions/checkout@v2.5.0
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          token: ${{ secrets.WORKFLOW_TOKEN }}
-      - name: Setup SSH 
-        shell: bash
-        run: |
-         eval `ssh-agent -s`
-         mkdir -p ~/.ssh/
-         touch ~/.ssh/id_rsa
-         echo -e "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
-         chmod 700 ~/.ssh/id_rsa
-      - name: Setup python
-        uses: actions/setup-python@v2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Start EC2 runner
+        id: start-ec2-runner
+        uses: machulav/ec2-github-runner@v2
         with:
-          python-version: 3
-      - name: Install boto
-        run: |
-          pip3 install ansible boto boto3
-      - name: Run ansible script
-        shell: bash 
-        run: |
-          service ssh status
-          echo -e "${{secrets.VAULT_PASSWORD}}" > ./vault-password-file
-          ansible-playbook ec2-deploy.yml -vvv --private-key ~/.ssh/id_rsa --vault-password-file vault-password-file
+          mode: start
+          github-token: ${{ secrets.WORKFLOW_TOKEN }}
+          ec2-image-id: ami-0b0dcb5067f052a63
+          ec2-instance-type: t2.micro
+          subnet-id: subnet-09caeb001f259efee3
+          security-group-id: eshop
 
 #  Deploy:
 #    needs: [Build, Test]
