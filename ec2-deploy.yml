@@ -21,7 +21,7 @@
       register: ec2
     - name: Add instance hosts to group
       add_host:
-        hostname: "{{ item.public_ip }}"
+        hostname: "{{ item.network_interfaces.association.public_ip }}"
         groupname: launched
       loop: "{{ ec2.instances }}"
     - name: Wait for SSH connection
