@@ -3,6 +3,18 @@
   connection: local
 
   tasks:
+    - name: Terminate all running instances
+      ec2_instance:
+        region: us-east-1
+        state: absent
+		aws_access_key: "{{ access_key }}"
+        aws_secret_key: "{{ secret_key }}"
+        security_token: "{{ session_token }}"
+        filters:
+          instance-state-name: running
+      tags:
+        - ec2_delete_all
+        - ec2_terminate
     - name: Launch EC2 instance
       ec2_instance:
         instance_type: t2.micro
