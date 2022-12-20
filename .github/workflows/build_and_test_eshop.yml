@@ -111,6 +111,7 @@ jobs:
           requirements: galaxy-requirements.yml
           options: |
             -vvv
+            --inventory .inventory
 
 #  Deploy-with-bash:
 ##    needs: [Build, Test]

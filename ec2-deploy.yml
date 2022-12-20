@@ -31,7 +31,6 @@
         delay: 30
         timeout: 300
       loop: "{{ ec2.instances }}"
-      remote_user: ec2-user
 
 - name: Configure EC2
   hosts: launched
